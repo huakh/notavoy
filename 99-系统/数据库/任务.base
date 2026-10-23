@@ -1,0 +1,114 @@
+filters:
+  and:
+    - file.inFolder("11-任务")
+    - note["类型"] == "任务"
+formulas:
+  deadline: if(!(note["状态"] != "已完成" && note["状态"] != "已取消"), "已结束", if(note["截止日期"].isEmpty(), "未设置", if(date(note["截止日期"]) < today(), "逾期 " + ((number(today()) - number(date(note["截止日期"]))) / 86400000).floor() + " 天", if(date(note["截止日期"]) == today(), "今天", "剩余 " + ((number(date(note["截止日期"])) - number(today())) / 86400000).ceil() + " 天"))))
+  priority_rank: if(note["优先级"] == "P0", 0, if(note["优先级"] == "P1", 1, if(note["优先级"] == "P2", 2, if(note["优先级"] == "P3", 3, 9))))
+  due_rank: if(note["截止日期"].isEmpty(), 999999, (number(date(note["截止日期"])) - number(today())) / 86400000)
+  近期到期: '!note["截止日期"].isEmpty() && date(note["截止日期"]) <= today() + "7d"'
+properties:
+  note.领域:
+    displayName: 分类
+  file.name:
+    displayName: 名称
+  formula.deadline:
+    displayName: 期限
+  formula.due_rank:
+    displayName: 截止顺序（日期由近到远）
+  formula.priority_rank:
+    displayName: 优先顺序（紧急在前）
+  formula.近期到期:
+    displayName: 已逾期或七天内到期
+  note.进度:
+    displayName: 进度（0–100）
+views:
+  - type: project-task-table
+    name: 待处理
+    filters:
+      and:
+        - note["状态"] != "已完成"
+        - note["状态"] != "已取消"
+    order:
+      - file.name
+      - 项目
+      - 领域
+      - 状态
+      - 优先级
+      - 截止日期
+      - formula.deadline
+    sort:
+      - property: formula.due_rank
+        direction: ASC
+      - property: formula.priority_rank
+        direction: ASC
+    recordType: 任务
+  - type: project-task-table
+    name: 到期与逾期
+    filters:
+      and:
+        - note["状态"] != "已完成"
+        - note["状态"] != "已取消"
+        - formula.近期到期 == true
+    order:
+      - file.name
+      - 项目
+      - 领域
+      - 状态
+      - 优先级
+      - 截止日期
+      - formula.deadline
+    sort:
+      - property: formula.due_rank
+        direction: ASC
+    recordType: 任务
+  - type: project-task-table
+    name: 按项目
+    filters:
+      and:
+        - note["状态"] != "已完成"
+        - note["状态"] != "已取消"
+    groupBy:
+      property: 项目
+      direction: ASC
+    order:
+      - file.name
+      - 项目
+      - 领域
+      - 状态
+      - 优先级
+      - 截止日期
+      - formula.deadline
+    sort:
+      - property: formula.due_rank
+        direction: ASC
+      - property: formula.priority_rank
+        direction: ASC
+    recordType: 任务
+  - type: project-task-table
+    name: 全部任务
+    order:
+      - file.name
+      - 项目
+      - 领域
+      - 状态
+      - 优先级
+      - 截止日期
+      - formula.deadline
+    sort:
+      - property: formula.due_rank
+        direction: ASC
+      - property: formula.priority_rank
+        direction: ASC
+    recordType: 任务
+    layout: list
+  - type: kanban
+    name: 状态看板
+    groupBy:
+      property: 状态
+      direction: ASC
+    order:
+      - file.name
+      - 项目
+      - 优先级
+      - 截止日期

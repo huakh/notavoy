@@ -1,0 +1,10 @@
+{
+  "id": "project-tasks",
+  "name": "项目与任务",
+  "version": "1.3.2",
+  "minAppVersion": "1.14.4",
+  "description": "NotaVoy 的项目、任务、参考资料与灵感工作流，内容保存在本地 Markdown 文件中。",
+  "author": "huakh",
+  "isDesktopOnly": false,
+  "authorUrl": "https://github.com/huakh/notavoy"
+}

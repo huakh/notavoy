@@ -1,0 +1,48 @@
+filters:
+  and:
+    - file.inFolder("00-收件箱/想法")
+    - note["类型"] == "想法"
+formulas:
+  扩展想法: "\n"
+properties:
+  file.name:
+    displayName: 想法
+  note.想法扩展:
+    displayName: 想法扩展
+  note.整理状态:
+    displayName: 状态
+  note.项目:
+    displayName: 关联项目
+  file.mtime:
+    displayName: 更新于
+views:
+  - type: table
+    name: 全部想法
+    order:
+      - file.name
+      - 想法扩展
+      - 整理状态
+      - 项目
+    sort:
+      - property: file.mtime
+        direction: DESC
+    columnSize:
+      file.name: 402
+      note.整理状态: 254
+  - type: table
+    name: 最近想法
+    order:
+      - file.name
+      - 整理状态
+      - 想法扩展
+      - 项目
+    sort:
+      - property: 整理状态
+        direction: ASC
+      - property: formula.扩展想法
+        direction: ASC
+      - property: file.mtime
+        direction: DESC
+    columnSize:
+      file.name: 402
+      note.整理状态: 254

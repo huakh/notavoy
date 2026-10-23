@@ -1,0 +1,75 @@
+filters:
+  and:
+    - file.inFolder("20-知识/学习")
+    - note["类型"] == "学习资料"
+properties:
+  file.name:
+    displayName: 名称
+  note.形式:
+    displayName: 课程 / 播客
+  note.来源:
+    displayName: 链接
+  note.学习状态:
+    displayName: 状态
+  note.学习进度:
+    displayName: 学到 / 听到
+  note.项目:
+    displayName: 关联项目
+  file.mtime:
+    displayName: 更新于
+views:
+  - type: table
+    name: 全部学习
+    order:
+      - file.name
+      - 形式
+      - 来源
+      - 学习状态
+      - 学习进度
+      - 项目
+    sort:
+      - property: file.mtime
+        direction: DESC
+    columnSize:
+      note.学习状态: 71
+  - type: table
+    name: 最近学习
+    order:
+      - file.name
+      - 形式
+      - 来源
+      - 学习状态
+      - 学习进度
+    sort:
+      - property: file.name
+        direction: ASC
+      - property: file.mtime
+        direction: DESC
+    columnSize:
+      note.学习状态: 71
+  - type: table
+    name: 课程
+    filters:
+      and:
+        - note["形式"] == "课程"
+    order:
+      - file.name
+      - 来源
+      - 学习状态
+      - 学习进度
+    sort:
+      - property: file.mtime
+        direction: DESC
+  - type: table
+    name: 播客
+    filters:
+      and:
+        - note["形式"] == "播客"
+    order:
+      - file.name
+      - 来源
+      - 学习状态
+      - 学习进度
+    sort:
+      - property: file.mtime
+        direction: DESC

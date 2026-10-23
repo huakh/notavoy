@@ -1,0 +1,51 @@
+# Local state and credentials
+.DS_Store
+Thumbs.db
+.env
+.env.*
+*.pem
+*.key
+/.trash/
+/.obsidian/workspace*.json
+/.obsidian/cache/
+/.obsidian/plugins/*/data.json
+/.obsidian/plugins/cloud-notes-backup/
+
+# Keep only the published starter notes; new personal content stays local.
+/00-收件箱/*
+!/00-收件箱/收件箱.md
+!/00-收件箱/想法/
+/00-收件箱/想法/*
+!/00-收件箱/想法/示例-先做一个能用的小版本.md
+/10-项目/*
+!/10-项目/示例-搭建个人作品集.md
+!/10-项目/示例-完成一门课程.md
+/11-任务/*
+!/11-任务/示例-确定作品集的读者与目标.md
+!/11-任务/示例-整理三个代表作品.md
+!/11-任务/示例-完成第一节课程练习.md
+!/11-任务/示例-每周整理收件箱.md
+/20-知识/*
+!/20-知识/主题/
+!/20-知识/笔记/
+!/20-知识/学习/
+!/20-知识/论文/
+!/20-知识/开源项目/
+/20-知识/主题/*
+!/20-知识/主题/示例-项目实践.md
+/20-知识/笔记/*
+!/20-知识/笔记/示例-把目标拆成可交付任务.md
+/20-知识/学习/*
+!/20-知识/学习/示例-Obsidian 入门.md
+/20-知识/论文/*
+!/20-知识/论文/示例-论文阅读卡片.md
+/30-日志/*
+!/30-日志/.gitkeep
+/90-附件/*
+!/90-附件/.gitkeep
+!/90-附件/论文/
+/90-附件/论文/*
+!/90-附件/论文/.gitkeep
+
+/20-知识/开源项目/*
+!/20-知识/开源项目/示例-NotaVoy 模板.md

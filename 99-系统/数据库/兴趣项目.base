@@ -1,0 +1,29 @@
+filters:
+  and:
+    - file.inFolder("20-知识/开源项目")
+    - note["类型"] == "兴趣项目"
+properties:
+  file.name:
+    displayName: 名称
+  note.来源:
+    displayName: 仓库链接
+  note.简介:
+    displayName: 简介
+  note.关注点:
+    displayName: 关注点
+views:
+  - type: table
+    name: 全部收藏
+    order:
+      - file.name
+      - 来源
+      - 简介
+      - 关注点
+    sort:
+      - property: file.mtime
+        direction: DESC
+    columnSize:
+      file.name: 200
+      note.来源: 300
+      note.简介: 280
+      note.关注点: 280

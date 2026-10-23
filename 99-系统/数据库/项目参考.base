@@ -1,0 +1,28 @@
+filters:
+  and:
+    - file.inFolder("20-知识")
+    - formula.已关联参考 == true
+formulas:
+  已关联参考: list(this["参考知识"]).contains(file.asLink())
+  参考顺序: list(this["参考知识"]).map(if(value == file.asLink(), index, 999999)).sort()[0]
+properties:
+  formula.参考顺序:
+    displayName: 自定顺序
+  formula.已关联参考:
+    displayName: 当前项目已关联
+  file.name:
+    displayName: 名称
+  formula.deadline:
+    displayName: 期限
+  note.进度:
+    displayName: 进度（0–100）
+views:
+  - type: table
+    name: 参考知识
+    order:
+      - file.name
+      - 状态
+      - 来源
+    sort:
+      - property: formula.参考顺序
+        direction: ASC

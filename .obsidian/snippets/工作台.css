@@ -1,0 +1,7 @@
+.home-dashboard { --file-line-width: 1120px; }
+.home-dashboard .markdown-preview-section > div > h1 { font-size: 2.1em; letter-spacing: -.02em; }
+.home-dashboard .callout[data-callout="abstract"] { background: var(--background-secondary); border: 1px solid var(--background-modifier-border); border-radius: 12px; }
+.home-dashboard .bases-embed { border-radius: 10px; overflow: hidden; }
+.home-dashboard h2 { margin-top: 1.7em; }
+
+.home-dashboard .metadata-container, .home-dashboard .metadata-properties, .home-dashboard .metadata-properties-heading, .home-dashboard .metadata-add-button, .home-dashboard .inline-title { display: none !important; }

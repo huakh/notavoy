@@ -1,0 +1,21 @@
+{
+  "types": {
+    "aliases": "aliases",
+    "cssclasses": "multitext",
+    "类型": "text",
+    "领域": "text",
+    "状态": "text",
+    "优先级": "text",
+    "截止日期": "date",
+    "进度": "number",
+    "下一步": "text",
+    "上下文更新": "date",
+    "参考知识": "multitext",
+    "项目": "text",
+    "主题": "multitext",
+    "来源": "text",
+    "核验": "text",
+    "日期": "date",
+    "tags": "tags"
+  }
+}

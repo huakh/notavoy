@@ -1,0 +1,89 @@
+filters:
+  and:
+    - file.inFolder("20-知识")
+properties:
+  file.name:
+    displayName: 名称
+  note.来源:
+    displayName: PDF / 来源
+  file.ctime:
+    displayName: 收录于
+views:
+  - type: table
+    name: 论文
+    filters:
+      and:
+        - note["类型"] == "论文"
+    order:
+      - file.name
+      - 状态
+      - 主题
+      - 来源
+      - 核验
+    sort:
+      - property: file.name
+        direction: ASC
+  - type: cards
+    name: 主题地图
+    filters:
+      and:
+        - note["类型"] == "主题"
+    order:
+      - file.name
+    cardSize: 240
+  - type: table
+    name: 笔记
+    filters:
+      and:
+        - note["类型"] == "笔记"
+    order:
+      - file.name
+      - 主题
+      - 核验
+  - type: table
+    name: 待精读
+    filters:
+      and:
+        - note["类型"] == "论文"
+        - note["状态"] != "已读"
+    order:
+      - file.name
+      - 状态
+      - 主题
+  - type: table
+    name: 未读论文
+    filters:
+      and:
+        - file.inFolder("20-知识/论文")
+        - note["类型"] == "论文"
+        - note["状态"] == "未读"
+    order:
+      - file.name
+      - 来源
+      - 状态
+      - 主题
+      - file.ctime
+    sort:
+      - property: file.ctime
+        direction: DESC
+    columnSize:
+      file.name: 180
+      note.来源: 358
+  - type: table
+    name: 最近未读
+    filters:
+      and:
+        - file.inFolder("20-知识/论文")
+        - note["类型"] == "论文"
+        - note["状态"] == "未读"
+    order:
+      - file.name
+      - 来源
+      - 状态
+      - 主题
+    sort:
+      - property: file.ctime
+        direction: DESC
+    columnSize:
+      file.name: 180
+      note.来源: 358

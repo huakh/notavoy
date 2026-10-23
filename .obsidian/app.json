@@ -1,0 +1,13 @@
+{
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "useMarkdownLinks": false,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "00-收件箱",
+  "attachmentFolderPath": "90-附件",
+  "promptDelete": true,
+  "defaultViewMode": "preview",
+  "livePreview": true,
+  "propertiesInDocument": "visible",
+  "showUnsupportedFiles": true
+}
