@@ -1,0 +1,35 @@
+filters:
+  and:
+    - file.inFolder("00-收件箱/Raindrop")
+    - file.ext == "md"
+properties:
+  file.name:
+    displayName: 名称
+  note.来源:
+    displayName: 来源链接
+  note.收藏时间:
+    displayName: 收藏时间
+  note.整理状态:
+    displayName: 整理状态
+  note.归档笔记:
+    displayName: 归档笔记
+views:
+  - type: table
+    name: 全部收藏
+    order:
+      - file.name
+      - 来源
+      - 收藏时间
+      - 整理状态
+      - 归档笔记
+    sort:
+      - property: 收藏时间
+        direction: DESC
+      - property: file.name
+        direction: ASC
+    columnSize:
+      file.name: 280
+      note.来源: 280
+      note.收藏时间: 170
+      note.整理状态: 100
+      note.归档笔记: 220

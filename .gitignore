@@ -10,6 +10,7 @@ Thumbs.db
 /.obsidian/cache/
 /.obsidian/plugins/*/data.json
 /.obsidian/plugins/cloud-notes-backup/
+/.obsidian/plugins/obsidian-raindrop-highlights/
 
 # Keep only the published starter notes; new personal content stays local.
 /00-收件箱/*
@@ -17,6 +18,9 @@ Thumbs.db
 !/00-收件箱/想法/
 /00-收件箱/想法/*
 !/00-收件箱/想法/示例-先做一个能用的小版本.md
+!/00-收件箱/Raindrop/
+/00-收件箱/Raindrop/*
+!/00-收件箱/Raindrop/示例-Bases学习资料.md
 /10-项目/*
 !/10-项目/示例-搭建个人作品集.md
 !/10-项目/示例-完成一门课程.md

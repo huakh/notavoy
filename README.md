@@ -6,7 +6,7 @@
 
 *An Obsidian workspace for turning notes into action. Projects, tasks, learning and knowledge, connected through local Markdown files.*
 
-[开始使用](#开始使用) · [完整指南](99-系统/使用说明.md) · [定制与开发](docs/开发与定制.md) · [MIT](LICENSE) · [English quick start](#english-quick-start)
+[开始使用](#开始使用) · [完整指南](99-系统/使用说明.md) · [收藏同步](docs/Raindrop收藏同步.md) · [定制与开发](docs/开发与定制.md) · [MIT](LICENSE) · [English quick start](#english-quick-start)
 
 ![知行舟首页：通用入口、项目列表与任务工作流](docs/images/dashboard.png)
 
@@ -16,6 +16,7 @@
 - **项目上下文**：目标、完成标准、进展记录与下一步放在同一页；关联任务和参考知识自动汇总。
 - **资料与灵感**：在项目内收集链接、课程与想法，记录学习位置；支持调整分段和条目顺序。
 - **学习与知识**：随手想法、课程与播客、开源项目收藏、论文阅读卡片、主题地图，分别使用合适的模板与视图。
+- **收藏转入**：收件箱显示全部收藏，点击名称在右侧打开；用“转入…”生成分类笔记，或加入已有项目的参考资料。可选接入 Raindrop 自动同步。
 - **本地文件**：正文和属性保存在 Markdown 中，视图保存在 `.base` 文件中；随附插件源码，无需构建。
 
 ```mermaid
@@ -49,6 +50,7 @@ flowchart LR
 
 | 想做的事 | 从哪里开始 | 保存在哪里 |
 | --- | --- | --- |
+| 整理跨平台收藏 | 收件箱 → 收藏名称 → 转入… | `00-收件箱/Raindrop` 保留原始收藏，归档链接指向分类笔记或项目 |
 | 推进一个目标 | 首页 → 新建项目 | `10-项目` |
 | 追踪具体行动 | 项目页 → 新建本项目任务，或首页 → 新建任务 | `11-任务` |
 | 快速记录想法 | 首页 → 随手想法 → 新建 | `00-收件箱/想法` |
@@ -59,12 +61,14 @@ flowchart LR
 
 项目正文中的普通复选框适合临时检查事项；需要状态、优先级或截止日期的行动，使用独立任务笔记。项目进度是手动填写的 0–100 数值。截止日期用于筛选和展示，不会发送提醒。
 
+打开收件箱中的 `示例-Bases学习资料`，无需账号即可试用转换。接通手机收藏，请按[Raindrop 收藏同步](docs/Raindrop收藏同步.md)配置第三方插件；文档提供文件名、属性和正文的完整模板，以及旧版升级步骤。
+
 ## 目录结构
 
 ```text
 notavoy/
 ├── 首页.md
-├── 00-收件箱/          临时内容与随手想法
+├── 00-收件箱/          临时内容、随手想法与 Raindrop 收藏
 ├── 10-项目/            目标、上下文、资料与进展
 ├── 11-任务/            独立行动与结果
 ├── 20-知识/
@@ -77,7 +81,7 @@ notavoy/
 ├── 90-附件/            自己添加的 PDF、图片等
 ├── 99-系统/
 │   ├── 模板/           9 种笔记模板
-│   ├── 数据库/         9 个 Bases 数据库
+│   ├── 数据库/         10 个 Bases 数据库
 │   └── 使用说明.md
 ├── .obsidian/          通用设置、样式和项目与任务插件
 └── docs/               定制与开发说明
@@ -87,7 +91,7 @@ notavoy/
 
 在 **设置 → 项目与任务** 中调整分类、状态和优先级。目录名、属性名和部分章节标题是插件与数据库共同使用的约定；修改它们前请阅读[定制指南](docs/开发与定制.md)。
 
-模板不配置云盘、同步账号或自动备份。可以自行选择备份方式；GitHub 的模板按钮也不会自动同步本地笔记。
+模板不预设同步账号或自动备份。Raindrop 收藏同步是可选配置，需要自行安装 Raindrop Highlights 并连接个人账号；它只将收藏导入 Obsidian。GitHub 的模板按钮也不会自动同步本地笔记。
 
 本仓库只包含通用配置、插件源码和虚构示例，不包含原始个人笔记、论文附件、备份路径或账号配置。`.gitignore` 默认忽略数据目录中新建的个人内容、附件、插件运行配置和窗口状态。若希望用 Git 同步自己的笔记，请先选择合适的仓库可见性，再调整对应忽略规则。**已被 Git 跟踪的示例或配置不会因为忽略规则而停止跟踪**；直接把示例改成私人笔记后仍可能被提交。
 
@@ -95,7 +99,7 @@ notavoy/
 
 基于 [Obsidian Bases](https://help.obsidian.md/bases) 与 [Bases 扩展 API](https://docs.obsidian.md/plugins/guides/bases-view)。项目与任务插件的入口是 [main.js](.obsidian/plugins/project-tasks/main.js)，样式是 [styles.css](.obsidian/plugins/project-tasks/styles.css)。日常使用不需要 Node.js、Dataview 或 Templater。
 
-已在 **macOS / Obsidian 1.14.5** 验证项目与任务创建、关联、自动模板、资料与灵感记录、分段排序和删除撤销。
+已在 **macOS / Obsidian 1.14.5** 验证项目与任务创建、关联、自动模板、资料与灵感记录、分段排序和删除撤销；收藏同步、五种转换去向、重复转入与右侧打开也已验证。
 
 欢迎提交 Issue 或 Pull Request。描述问题时请提供 Obsidian 版本、操作步骤和虚构的最小示例；开发请使用单独的测试库。当前界面以中文为主，移动端和其他桌面平台尚未验证。
 
@@ -109,6 +113,8 @@ NotaVoy (知行舟) is a Chinese-first Obsidian vault template. It connects proj
 4. Open `首页.md`. Notes starting with `示例-` are fictional examples and can be removed.
 
 No build step or cloud account is required. New personal notes and attachments are ignored by Git by default; tracked examples remain tracked after editing. Keep the Chinese folder/property names unless you also update the plugin and Bases definitions. Mobile and non-macOS platforms have not been verified.
+
+The inbox includes a sample bookmark with a **转入…** (Convert) button. It can create a project-interest, paper, learning or idea note, or add the link to an existing project's references. Optional Raindrop sync requires installing Raindrop Highlights and configuring your own account; see the [setup guide](docs/Raindrop收藏同步.md).
 
 ## License
 

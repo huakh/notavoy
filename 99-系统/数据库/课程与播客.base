@@ -1,7 +1,7 @@
 filters:
   and:
     - file.inFolder("20-知识/学习")
-    - note["类型"] == "学习资料"
+    - file.ext == "md"
 properties:
   file.name:
     displayName: 名称

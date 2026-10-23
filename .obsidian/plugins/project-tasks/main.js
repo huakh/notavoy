@@ -13,6 +13,12 @@ const DEFAULTS = {
 const PRIORITY_LABELS = {P0: 'P0 · 紧急', P1: 'P1 · 高', P2: 'P2 · 正常', P3: 'P3 · 低'};
 const DOMAIN_COLORS = {学业: 'blue', 工作: 'orange', 生活: 'green', 兴趣: 'purple', 私人: 'green'};
 const CAPTURE_SECTIONS = {links: '参考链接与课程', ideas: '灵感与想法'};
+const INBOX_TARGETS = {
+  '兴趣项目': {kind: '兴趣项目', folder: '20-知识/开源项目'},
+  '未读论文': {kind: '论文', folder: '20-知识/论文'},
+  '课程与播客': {kind: '学习资料', folder: '20-知识/学习'},
+  '随手想法': {kind: '想法', folder: '00-收件箱/想法'}
+};
 const ORDER_LABELS = {sections: '项目分段', references: '参考知识', ...CAPTURE_SECTIONS};
 const RESOURCE_PLATFORMS = ['自动识别', 'YouTube', 'Hugging Face', 'GitHub', '网页 / 文档', '其他'];
 const resourcePlatform = url => {
@@ -239,6 +245,60 @@ class ProjectCaptureModal extends Modal {
         this.close();
         await this.plugin.showProjectSection(this.file, this.kind, false);
       } catch (error) { new Notice(error.message); save.disabled = false; }
+    };
+  }
+}
+
+class InboxConvertModal extends Modal {
+  constructor(plugin, file) { super(plugin.app); this.plugin = plugin; this.file = file; }
+  async onOpen() {
+    this.setTitle('转入工作台');
+    this.contentEl.addClass('pt-capture-form');
+    const {frontmatter} = parts(await this.app.vault.read(this.file));
+    const values = {destination: '', title: this.file.basename, url: text(frontmatter['来源']), form: '课程', topics: '', project: ''};
+    new Setting(this.contentEl).setName('转入位置').addDropdown(input => {
+      input.selectEl.setAttribute('aria-label', '转入位置');
+      input.addOption('', '选择去向');
+      for (const name of [...Object.keys(INBOX_TARGETS), '已有项目']) input.addOption(name, name);
+      input.onChange(value => { values.destination = value; update(); });
+    });
+    new Setting(this.contentEl).setName('名称').addText(input => {
+      input.setValue(values.title).onChange(value => values.title = value);
+      input.inputEl.setAttribute('aria-label', '归档名称');
+    });
+    new Setting(this.contentEl).setName('来源链接').addText(input => {
+      input.setValue(values.url).onChange(value => values.url = value);
+      input.inputEl.setAttribute('aria-label', '归档来源链接');
+    });
+    const topics = new Setting(this.contentEl).setName('主题').addText(input => {
+      input.setPlaceholder('多个主题用逗号分隔').onChange(value => values.topics = value);
+      input.inputEl.setAttribute('aria-label', '论文主题');
+    });
+    const form = new Setting(this.contentEl).setName('形式').addDropdown(input => {
+      input.selectEl.setAttribute('aria-label', '学习资料形式');
+      for (const name of ['课程', '播客', '视频', '文章']) input.addOption(name, name);
+      input.setValue(values.form).onChange(value => values.form = value);
+    });
+    const project = new Setting(this.contentEl).setName('项目');
+    select(project.controlEl, '目标项目', '', this.plugin.projectOptions(), value => values.project = value);
+    const actions = this.contentEl.createDiv('pt-actions');
+    actions.createEl('button', {text: '取消'}).onclick = () => this.close();
+    const save = actions.createEl('button', {text: '转入', cls: 'mod-cta'});
+    const update = () => {
+      topics.settingEl.style.display = values.destination === '未读论文' ? '' : 'none';
+      form.settingEl.style.display = values.destination === '课程与播客' ? '' : 'none';
+      project.settingEl.style.display = values.destination === '已有项目' ? '' : 'none';
+      save.disabled = !values.destination;
+    };
+    update();
+    save.onclick = async () => {
+      save.disabled = true;
+      try {
+        const target = await this.plugin.convertInbox(this.file, values);
+        this.close();
+        await this.plugin.openRecord(target);
+        new Notice(`已转入${values.destination}`);
+      } catch (error) { new Notice(error.message); update(); }
     };
   }
 }
@@ -532,7 +592,7 @@ module.exports = class ProjectTasksPlugin extends Plugin {
       const name = event.target.closest?.('.bases-td[data-property="file.name"] .internal-link');
       if (!name) return;
       const file = this.app.vault.getFileByPath(name.getAttribute('data-href') || '');
-      if (!['想法', '学习资料', '论文', '兴趣项目'].includes(this.captureKindFromPath(file))) return;
+      if (!['想法', '学习资料', '论文', '兴趣项目'].includes(this.captureKindFromPath(file)) && !file?.path.startsWith('00-收件箱/Raindrop/')) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       this.openRecord(file, event.metaKey || event.ctrlKey).catch(error => new Notice(error.message));
@@ -560,6 +620,12 @@ module.exports = class ProjectTasksPlugin extends Plugin {
       }
       bar.createEl('button', {text: `删除${kind}`, cls: 'pt-delete'}).onclick = () => this.confirmDelete(file);
     });
+    this.registerMarkdownCodeBlockProcessor('inbox-actions', (_source, el, ctx) => {
+      const file = this.app.vault.getFileByPath(ctx.sourcePath);
+      if (!file?.path.startsWith('00-收件箱/Raindrop/')) return;
+      const bar = el.createDiv('pt-toolbar');
+      bar.createEl('button', {text: '转入…', cls: 'mod-cta', attr: {'data-inbox-action': 'convert'}}).onclick = () => new InboxConvertModal(this, file).open();
+    });
     this.registerMarkdownCodeBlockProcessor('project-capture', (source, el, ctx) => {
       const file = this.app.vault.getFileByPath(ctx.sourcePath);
       const kind = source.trim();
@@ -577,6 +643,12 @@ module.exports = class ProjectTasksPlugin extends Plugin {
     });
     this.addCommand({id: 'new-task', name: '新建任务', callback: () => new RecordModal(this, '任务').open()});
     this.addCommand({id: 'new-project', name: '新建项目', callback: () => new RecordModal(this, '项目').open()});
+    this.addCommand({id: 'convert-inbox', name: '转入当前收藏', checkCallback: checking => {
+      const file = this.app.workspace.getActiveFile();
+      if (!file?.path.startsWith('00-收件箱/Raindrop/')) return false;
+      if (!checking) new InboxConvertModal(this, file).open();
+      return true;
+    }});
     this.addCommand({id: 'edit-record', name: '编辑当前项目或任务', checkCallback: checking => {
       const file = this.app.workspace.getActiveFile();
       if (!this.kind(file)) return false;
@@ -656,6 +728,67 @@ module.exports = class ProjectTasksPlugin extends Plugin {
   async setProperty(file, property, value) {
     this.validate({[property]: value});
     await this.app.fileManager.processFrontMatter(file, fm => fm[property] = value);
+  }
+  async convertInbox(source, values) {
+    if (!(source instanceof TFile) || !source.path.startsWith('00-收件箱/Raindrop/')) throw new Error('请先打开一条收藏');
+    const {frontmatter: fm, body} = parts(await this.app.vault.read(source));
+    const title = text(values.title).trim();
+    if (!title || /[\\/:*?"<>|\[\]#\r\n]/.test(title) || ['.', '..'].includes(title)) throw new Error('请填写名称，且不要包含 / \\ : * ? " < > | [ ] #');
+    let url = text(values.url).trim();
+    if (url) {
+      try {
+        const parsed = new URL(url);
+        if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error();
+        url = parsed.href;
+      } catch { throw new Error('请填写完整的 http:// 或 https:// 链接'); }
+    }
+    const originalBody = body.replace(/^```inbox-actions[^\n]*\n[\s\S]*?^```[ \t]*\n?/gm, '').trim();
+    const hasNotes = originalBody.replace(/^## (?:我的笔记|摘录)[ \t]*$/gm, '').trim();
+    const notes = [text(fm['摘要']).trim(), text(fm['收藏备注']).trim(), hasNotes ? originalBody : ''].filter(Boolean).join('\n\n');
+    let target;
+    if (values.destination === '已有项目') {
+      const projectPath = text(values.project).replace(/^\[\[|\]\]$/g, '').split('|')[0];
+      target = projectPath && this.app.metadataCache.getFirstLinkpathDest(projectPath, source.path);
+      if (!target || this.kind(target) !== '项目') throw new Error('请选择目标项目');
+      if (!url) throw new Error('加入项目参考资料时需要来源链接');
+      const projectContent = await this.app.vault.read(target);
+      const range = captureSection(projectContent, 'links');
+      const section = range ? projectContent.slice(range.start, range.end) : '';
+      if (!section.includes(`](<${url}>)`) && !section.includes(`](${url})`)) {
+        await this.saveProjectCapture(target, 'links', {title, url, status: '待整理', notes: [`原始收藏：${link(source)}`, notes].filter(Boolean).join('\n\n')});
+      }
+    } else {
+      const destination = INBOX_TARGETS[values.destination];
+      if (!destination) throw new Error('请选择转入位置');
+      const path = `${destination.folder}/${title}.md`;
+      target = this.app.vault.getAbstractFileByPath(path);
+      if (target) {
+        if (!(target instanceof TFile)) throw new Error('已有同名目录，请修改名称');
+        const existing = parts(await this.app.vault.read(target)).frontmatter;
+        const origins = Array.isArray(existing['原始收藏']) ? existing['原始收藏'] : [existing['原始收藏']];
+        if (!(url && existing['来源'] === url) && !origins.includes(link(source))) throw new Error('已有同名笔记，请修改名称；原笔记未覆盖');
+        await this.app.fileManager.processFrontMatter(target, current => {
+          const refs = Array.isArray(current['原始收藏']) ? current['原始收藏'] : current['原始收藏'] ? [current['原始收藏']] : [];
+          current['原始收藏'] = [...new Set([...refs, link(source)])];
+        });
+      } else {
+        if (!this.app.vault.getFolderByPath(destination.folder)) await this.app.vault.createFolder(destination.folder);
+        const template = parts(await this.template(destination.kind, title));
+        const metadata = {...template.frontmatter, 来源: url || null, 原始收藏: [link(source)]};
+        if (Array.isArray(fm.tags) && fm.tags.length) metadata.tags = fm.tags;
+        if (destination.kind === '论文') metadata['主题'] = [...new Set(text(values.topics).split(/[,，、\n]/).map(v => v.trim()).filter(Boolean))];
+        if (destination.kind === '学习资料') metadata['形式'] = values.form || '课程';
+        if (destination.kind === '兴趣项目') metadata['简介'] = text(fm['摘要']);
+        const content = template.body.trimEnd() + (notes ? `\n\n## 收藏摘记\n\n${notes}` : '') + '\n';
+        target = await this.app.vault.create(path, combine(metadata, content));
+      }
+    }
+    await this.app.fileManager.processFrontMatter(source, current => {
+      const refs = Array.isArray(current['归档笔记']) ? current['归档笔记'] : current['归档笔记'] ? [current['归档笔记']] : [];
+      current['归档笔记'] = [...new Set([...refs, link(target)])];
+      current['整理状态'] = '已整理';
+    });
+    return target;
   }
   async saveProjectOrder(file, kind, snapshot, order) {
     if (this.kind(file) !== '项目' || !Object.hasOwn(ORDER_LABELS, kind)) throw new Error('请在项目页调整顺序');
@@ -745,7 +878,7 @@ module.exports = class ProjectTasksPlugin extends Plugin {
     return await this.app.vault.create(destination, combine({...template.frontmatter, ...this.defaults(kind), ...changes, 类型: kind}, template.body));
   }
   async openRecord(file, newTab = false) {
-    const options = ['想法', '兴趣项目'].includes(this.captureKindFromPath(file)) ? {state: {mode: 'source', source: false}} : undefined;
+    const options = ['想法', '兴趣项目'].includes(this.captureKindFromPath(file)) || file.path.startsWith('00-收件箱/Raindrop/') ? {state: {mode: 'source', source: false}} : undefined;
     if (newTab) return this.app.workspace.getLeaf('tab').openFile(file, options);
     let leaf = this.app.workspace.getLeafById(this.settings.previewLeafId || '');
     if (!leaf || !['markdown', 'empty'].includes(leaf.view.getViewType())) {
